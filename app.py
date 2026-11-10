@@ -166,14 +166,25 @@ def pronosticar_todos(serie_completa_values, n_forecast):
     return preds
 
 
-# Colores fijos para cada modelo
+# ---------------------------------------------------------------------------
+# PALETA AZULES Y MORADOS
+# ---------------------------------------------------------------------------
+# Azul marino oscuro para la línea histórica principal
+COLOR_HISTORICO = "#1a237e"
+
+# Colores fijos para cada modelo (gama azul-violeta-celeste)
 COLORES = {
-    "Copiar el año pasado": "#e67e22",
-    "Holt-Winters":         "#2ecc71",
-    "SARIMA":               "#9b59b6",
-    "Regresión Lineal":     "#e74c3c",
-    "Prophet":              "#1abc9c",
+    "Copiar el año pasado": "#7986cb",   # azul medio
+    "Holt-Winters":         "#ce93d8",   # lila suave
+    "SARIMA":               "#4fc3f7",   # celeste brillante
+    "Regresión Lineal":     "#b39ddb",   # violeta claro
+    "Prophet":              "#4dd0e1",   # turquesa azulado
 }
+
+# Temporada alta y baja en la paleta
+COLOR_ALTA = "#5c6bc0"   # azul índigo (temporada alta)
+COLOR_BAJA = "#b39ddb"   # violeta claro (temporada baja)
+COLOR_LINEA_NORMAL = "#90a4ae"  # gris azulado para la línea "mes normal"
 
 
 # ===========================================================================
@@ -187,9 +198,11 @@ with tab1:
         x=df["Month"],
         y=df["Passengers"],
         mode="lines+markers",
-        line=dict(color="#1f77b4", width=2),
-        marker=dict(size=4),
+        line=dict(color=COLOR_HISTORICO, width=2),
+        marker=dict(size=4, color="#5c6bc0"),
         name="Pasajeros",
+        fill="tozeroy",
+        fillcolor="rgba(92, 107, 192, 0.10)",
     ))
     fig1.update_layout(
         xaxis_title="Mes",
@@ -225,7 +238,7 @@ with tab2:
     promedio_general = df["Passengers"].mean()
 
     colores_bar = [
-        "#2ecc71" if v >= promedio_general else "#e74c3c"
+        COLOR_ALTA if v >= promedio_general else COLOR_BAJA
         for v in promedio_mes["promedio"]
     ]
 
@@ -239,7 +252,7 @@ with tab2:
     fig2.add_hline(
         y=promedio_general,
         line_dash="dash",
-        line_color="gray",
+        line_color=COLOR_LINEA_NORMAL,
         annotation_text="Mes normal",
         annotation_position="top left",
     )
@@ -290,14 +303,14 @@ with tab3:
         x=df_train["Month"],
         y=df_train["Passengers"],
         mode="lines",
-        line=dict(color="#1f77b4", width=2),
+        line=dict(color=COLOR_HISTORICO, width=2),
         name="Datos conocidos",
     ))
     fig3.add_trace(go.Scatter(
         x=df_test["Month"],
         y=df_test["Passengers"],
         mode="lines",
-        line=dict(color="#1f77b4", width=2, dash="dot"),
+        line=dict(color="#3949ab", width=2, dash="dot"),
         name="Real (tapado)",
     ))
     for nombre, pred in preds_exam.items():
@@ -313,7 +326,7 @@ with tab3:
     fig3.add_vline(
         x=df_train["Month"].iloc[-1],
         line_dash="dash",
-        line_color="red",
+        line_color="#7986cb",
         annotation_text="Aquí se tapa",
         annotation_position="top right",
     )
@@ -371,8 +384,10 @@ with tab4:
         x=df["Month"],
         y=df["Passengers"],
         mode="lines",
-        line=dict(color="#1f77b4", width=2),
+        line=dict(color=COLOR_HISTORICO, width=2),
         name="Histórico (1949–1960)",
+        fill="tozeroy",
+        fillcolor="rgba(26, 35, 126, 0.08)",
     ))
     for nombre, pred in preds_fc.items():
         fig4.add_trace(go.Scatter(
@@ -387,7 +402,7 @@ with tab4:
     fig4.add_vline(
         x=df["Month"].iloc[-1],
         line_dash="dash",
-        line_color="gray",
+        line_color=COLOR_LINEA_NORMAL,
         annotation_text="Inicio del pronóstico",
         annotation_position="top left",
     )
